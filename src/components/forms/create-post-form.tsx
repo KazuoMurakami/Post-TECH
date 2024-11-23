@@ -1,4 +1,3 @@
-'use client'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -12,35 +11,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileEdit, Clock, Calendar, CheckCircle2, Search } from 'lucide-react'
 import DialogPost from '../dialog'
 import { Button } from '../ui/button'
-import { useState, useEffect } from 'react'
 
-type posts = {
-  id: number
-  title: string
-  content: string | null
-  published: boolean
-  createdAt: Date
-  authorId: number
-  categories: {
-    id: number
-    category: string
-  }[]
-}[]
+interface PostFormProps {
+  postLength: number
+}
 
-export default function CreatePostForm() {
-  const [posts, setPosts] = useState<posts>([])
-
-  useEffect(() => {
-    async function fetchPosts() {
-      const res = await fetch('/api/getPost')
-      if (!res.ok) throw new Error('Failed to fetch posts')
-      const data = await res.json()
-      setPosts(data)
-    }
-    fetchPosts()
-  }, [])
-
-  console.log(posts)
+export default function CreatePostForm({ postLength }: PostFormProps) {
   const stats = [
     { label: 'Rascunho', count: 14, icon: FileEdit, color: 'text-gray-500' },
     { label: 'Pendente', count: 6, icon: Clock, color: 'text-yellow-500' },
@@ -74,7 +50,7 @@ export default function CreatePostForm() {
             <CardContent className="flex items-center gap-4 p-6">
               <stat.icon className={`w-6 h-6 ${stat.color}`} />
               <div>
-                <p className="text-2xl font-bold">{posts.length}</p>
+                <p className="text-2xl font-bold">{postLength}</p>
                 <p className="text-gray-500">{stat.label}</p>
               </div>
             </CardContent>
@@ -129,26 +105,6 @@ export default function CreatePostForm() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
           <Input placeholder="Busque um post" className="pl-10" />
         </div>
-      </div>
-
-      <div className="space-y-4">
-        {posts.map((post, index) => (
-          <div
-            key={index}
-            className="p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">{post.title}</h3>
-                <div className="flex flex-col md:flex-row gap-2 text-sm text-gray-500 mt-1">
-                  <span>Categoria: {post.categories[0].category}</span>
-                  <span className="hidden md:block">•</span>
-                  <span>{post.content}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   )
