@@ -4,11 +4,7 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     // Buscar todos os posts no banco de dados
-    const posts = await prisma.post.findMany({
-      include: {
-        categories: true,
-      },
-    })
+    const posts = await prisma.post.findMany()
 
     // Retornar os dados como JSON no front-end
     return NextResponse.json(posts)

@@ -1,5 +1,6 @@
 import AuthService from '@/lib/auth-service/auth-service'
 import prisma from '@/lib/prisma'
+// import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -9,13 +10,6 @@ const postSchema = z.object({
     .min(3, 'O título deve ter no mínimo 3 caracteres')
     .max(100, 'O título deve ter no máximo 100 caracteres'),
   content: z.string().min(10, 'O conteúdo deve ter no mínimo 10 caracteres'),
-  categories: z
-    .string()
-    .min(1, 'Selecione uma categoria')
-    .refine(
-      (cat) => ['produtividade', 'gestao', 'marketing'].includes(cat),
-      'Categoria inválida',
-    ),
 })
 
 export async function POST(req: Request) {
@@ -46,20 +40,20 @@ export async function POST(req: Request) {
     }
 
     // Criação do post com dados validados
-    const { title, content, categories } = result.data
+    const { title, content } = result.data
     const post = await prisma.post.create({
       data: {
         title,
         content,
-        author: {
-          connect: { id },
-        },
-        categories: {
-          create: [{ category: categories }],
+        user: {
+          connect: {
+            id,
+          },
         },
       },
     })
 
+    // revalidatePath('/posts')
     return NextResponse.json(
       {
         message: 'Post criado com sucesso!',
