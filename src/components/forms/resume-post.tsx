@@ -16,7 +16,7 @@ interface PostFormProps {
   postLength: number
 }
 
-export default function CreatePostForm({ postLength }: PostFormProps) {
+export default function ResumePost({ postLength }: PostFormProps) {
   const stats = [
     { label: 'Rascunho', count: 14, icon: FileEdit, color: 'text-gray-500' },
     { label: 'Pendente', count: 6, icon: Clock, color: 'text-yellow-500' },
@@ -50,7 +50,9 @@ export default function CreatePostForm({ postLength }: PostFormProps) {
             <CardContent className="flex items-center gap-4 p-6">
               <stat.icon className={`w-6 h-6 ${stat.color}`} />
               <div>
-                <p className="text-2xl font-bold">{postLength}</p>
+                <p className="text-2xl font-bold">
+                  {stat.label === 'Postado' ? postLength : stat.count}
+                </p>
                 <p className="text-gray-500">{stat.label}</p>
               </div>
             </CardContent>

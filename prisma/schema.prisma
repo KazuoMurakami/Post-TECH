@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   email    String @unique
   password String
   name     String
@@ -23,6 +23,6 @@ model Post {
   title     String
   content   String
   createdAt DateTime @default(now())
-  userId    Int
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
 }
