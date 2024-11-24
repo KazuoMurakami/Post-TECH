@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const id = typeof session.sub === 'number' ? session.sub : undefined
+    const id = typeof session.sub === 'string' ? session.sub : undefined
     if (!id) {
       return NextResponse.json(
         { error: 'ID do usuário inválido' },
@@ -45,11 +45,7 @@ export async function POST(req: Request) {
       data: {
         title,
         content,
-        user: {
-          connect: {
-            id,
-          },
-        },
+        userId: id,
       },
     })
 

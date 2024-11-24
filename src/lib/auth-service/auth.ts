@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt'
 
 import { z } from 'zod'
 import AuthService from './auth-service'
+import { SignupFormSchema } from '../definitions'
 
 export type State = {
   errors?: {
@@ -15,17 +16,17 @@ export type State = {
   message?: string | null
 }
 
-const signUpSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(4, 'Senha deve ter no mínimo 4 caracteres'),
-})
+// const signUpSchema = z.object({
+//   name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
+//   email: z.string().email('Email inválido'),
+//   password: z.string().min(4, 'Senha deve ter no mínimo 4 caracteres'),
+// })
 
 export async function createAccount(
   prevState: State,
   formData: FormData,
 ): Promise<State> {
-  const parse = signUpSchema.safeParse({
+  const parse = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
@@ -73,11 +74,28 @@ export async function createAccount(
   }
 }
 
-export async function login(formData: FormData) {
-  'use server'
+const loginUpSchema = z.object({
+  email: z.string().email('Coloque um email valido!'),
+  password: z.string(),
+})
 
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+export async function login(
+  prevState: State,
+  formData: FormData,
+): Promise<State> {
+  const parse = loginUpSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  })
+
+  if (!parse.success) {
+    return {
+      errors: parse.error.flatten().fieldErrors,
+      message: 'Informações não preenchidas',
+    }
+  }
+
+  const { email, password } = parse.data
 
   const user = await prisma.user.findUnique({
     where: {
@@ -86,15 +104,22 @@ export async function login(formData: FormData) {
   })
 
   if (!user) {
-    // Aqui você pode usar optimistic update para atualizar a tela
-    console.log('Error')
-    redirect('/login')
+    return {
+      errors: {
+        email: ['Email não encontrado, crie uma conta'],
+      },
+      message: 'Email não encontrado, crie uma conta',
+    }
   }
 
   const isMatch = await bcrypt.compare(password, user.password)
-
   if (!isMatch) {
-    console.log('Usuário ou senha inválidos')
+    return {
+      errors: {
+        password: ['Senha invalida, tente novamente!'],
+      },
+      message: 'senha invalida!',
+    }
   }
 
   await AuthService.createSessionToken({
